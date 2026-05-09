@@ -12,6 +12,7 @@
 // @match               *://*.5smp3.com/*
 // @match               *://*.yt1s.biz/*
 // @match               *://*.ytmp3.*/*
+// @match               *://*.yt2mp3.*/*
 // @connect             cobalt-api.kwiatekmiki.com
 // @require             https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant               GM_getValue
@@ -382,7 +383,7 @@ const downloadServices = {
       window.open('https://ytmp3.ai/');
     },
     checkPage: () => {
-      if (checkUrl('ytmp3')) {
+      if (checkUrl('ytmp3') || checkUrl('yt2mp3')) {
         const url = GM_getValue('ytmp3Url');
         const audioOnly = GM_getValue('ytmp3AudioOnly');
         if (url) {
