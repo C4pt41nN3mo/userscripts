@@ -402,16 +402,18 @@ const downloadServices = {
 
             convertButton.click();
 
-            const ytmp3Observer = new MutationObserver( function () {
+            const ytmp3Observer = new MutationObserver(function () {
               const finishedConversion = document.querySelector('div[style="justify-content: center;"');
               if (finishedConversion) {
                 finishedConversion.querySelector('button').click();
+                ytmp3Observer.disconnect();
               }
             });
 
             ytmp3Observer.observe(document.body, {
-            childList: true,
-            subtree: true,});
+              childList: true,
+              subtree: true,
+            });
           }
         }
         return true;
@@ -815,11 +817,13 @@ function showOptions(div) {
     extraDownloadServices['downsub'].download();
     closeOptions(optionsDiv);
   });
-  window.addEventListener('click', (e) => {
+  const outsideClickHandler = (e) => {
     if (!div.contains(e.target)) {
       closeOptions(optionsDiv);
+      window.removeEventListener('click', outsideClickHandler);
     }
-  });
+  };
+  window.addEventListener('click', outsideClickHandler);
 }
 
 function createButton(bar, short) {
@@ -850,6 +854,7 @@ function createButton(bar, short) {
     download();
   });
   button.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
     const downloadService = gmc.get('downloadService') || defaults.downloadService;
     const backupService = gmc.get('backupService') || defaults.backupService;
     if (downloadService !== backupService && backupService !== 'none') download(false, backupService);
