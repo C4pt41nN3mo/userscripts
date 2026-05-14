@@ -474,8 +474,9 @@ const downloadServices = {
             const observer = new MutationObserver(function () {
               if (loadingIcon.classList.contains('loading') || !loadingIcon) return;
               const dwnButton = document.querySelector('#download-button');
-              dwnButton.click();
               const queue = document.querySelector('#processing-popover');
+              if (!dwnButton || !queue) return;
+              dwnButton.click();
               queue.style.backgroundColor = 'rgba(255, 37, 37, 0.56)';
               const downloadObserver = new MutationObserver(function () {
                 const queueItems = queue.querySelectorAll('.processing-item');
