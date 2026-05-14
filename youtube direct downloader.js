@@ -387,7 +387,7 @@ const downloadServices = {
         const url = GM_getValue('ytmp3Url');
         const audioOnly = GM_getValue('ytmp3AudioOnly');
         if (url) {
-          const input = document.querySelector('input[id="v"]');
+          const input = document.querySelector('input[id="v"]') || document.querySelector('input[id="video"]');
           const convertButton = document.querySelector("button[type='submit']");
           if (!input || !convertButton) {
             retry();
