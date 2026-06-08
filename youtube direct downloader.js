@@ -1,6 +1,10 @@
 // ==UserScript==
 // @name                YouTube Direct Downloader
+<<<<<<< Updated upstream
 // @version             5.3
+=======
+// @version             5.2
+>>>>>>> Stashed changes
 // @description         Video/short download button next to subscribe button. Downloads MP4, WEBM, MP3 or subtitles from youtube + option to redirect shorts to normal videos. Choose your preferred quality from 8k to audio only, codec (h264, vp9 or av1) or service provider (cobalt, yt5s, yt1s, ytmp3) in settings.
 // @author              FawayTT
 // @namespace           FawayTT
@@ -12,7 +16,10 @@
 // @match               *://*.5smp3.com/*
 // @match               *://*.yt1s.biz/*
 // @match               *://*.ytmp3.*/*
+<<<<<<< Updated upstream
 // @match               *://*.yt2mp3.*/*
+=======
+>>>>>>> Stashed changes
 // @connect             cobalt-api.kwiatekmiki.com
 // @require             https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant               GM_getValue
@@ -23,6 +30,8 @@
 // @grant               GM_xmlhttpRequest
 // @license             MIT
 // @run-at              document-end
+// @downloadURL https://update.greasyfork.org/scripts/481954/YouTube%20Direct%20Downloader.user.js
+// @updateURL https://update.greasyfork.org/scripts/481954/YouTube%20Direct%20Downloader.meta.js
 // ==/UserScript==
 
 const gmcCSS = `
@@ -380,10 +389,16 @@ const downloadServices = {
     download: (isAudioOnly) => {
       GM_setValue('ytmp3Url', document.location.href);
       GM_setValue('ytmp3AudioOnly', isAudioOnly);
+      console.log('downloading with ytmp3')
       window.open('https://ytmp3.ai/');
     },
     checkPage: () => {
+<<<<<<< Updated upstream
       if (checkUrl('ytmp3') || checkUrl('yt2mp3')) {
+=======
+      if (checkUrl('ytmp3')) {
+        console.log("found ytmp3 page")
+>>>>>>> Stashed changes
         const url = GM_getValue('ytmp3Url');
         const audioOnly = GM_getValue('ytmp3AudioOnly');
         if (url) {
