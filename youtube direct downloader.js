@@ -1,10 +1,6 @@
 // ==UserScript==
 // @name                YouTube Direct Downloader
-<<<<<<< Updated upstream
-// @version             5.3
-=======
-// @version             5.2
->>>>>>> Stashed changes
+// @version             5.4
 // @description         Video/short download button next to subscribe button. Downloads MP4, WEBM, MP3 or subtitles from youtube + option to redirect shorts to normal videos. Choose your preferred quality from 8k to audio only, codec (h264, vp9 or av1) or service provider (cobalt, yt5s, yt1s, ytmp3) in settings.
 // @author              FawayTT
 // @namespace           FawayTT
@@ -15,11 +11,8 @@
 // @match               *://*.cobalt.meowing.de/*
 // @match               *://*.5smp3.com/*
 // @match               *://*.yt1s.biz/*
-// @match               *://*.ytmp3.*/*
-<<<<<<< Updated upstream
-// @match               *://*.yt2mp3.*/*
-=======
->>>>>>> Stashed changes
+// @match               *://*.ytmp3.tld/*
+// @match               *://*.yt2mp3.tld/*
 // @connect             cobalt-api.kwiatekmiki.com
 // @require             https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant               GM_getValue
@@ -389,20 +382,15 @@ const downloadServices = {
     download: (isAudioOnly) => {
       GM_setValue('ytmp3Url', document.location.href);
       GM_setValue('ytmp3AudioOnly', isAudioOnly);
-      console.log('downloading with ytmp3')
       window.open('https://ytmp3.ai/');
     },
     checkPage: () => {
-<<<<<<< Updated upstream
       if (checkUrl('ytmp3') || checkUrl('yt2mp3')) {
-=======
-      if (checkUrl('ytmp3')) {
-        console.log("found ytmp3 page")
->>>>>>> Stashed changes
         const url = GM_getValue('ytmp3Url');
         const audioOnly = GM_getValue('ytmp3AudioOnly');
+        console.log("Audio only:" + audioOnly)
         if (url) {
-          const input = document.querySelector('input[id="v"]');
+          const input = document.querySelector('input[id="v"]') || document.querySelector('input[id="video"]');
           const convertButton = document.querySelector("button[type='submit']");
           if (!input || !convertButton) {
             retry();
@@ -411,22 +399,40 @@ const downloadServices = {
             GM_deleteValue('ytmp3AudioOnly');
             yddAdded = true;
             setInput(input, url);
+
             // Swaps radio button for audio format
-            document.querySelectorAll('button:not(#submit)')[audioOnly ? 0 : 1].id = 'selected';
-            document.querySelectorAll('button:not(#submit)')[audioOnly ? 1 : 0].id = '';
+            //document.querySelectorAll('button:not(#submit)')[audioOnly ? 1 : 0].class = 'selected';
+            //document.querySelectorAll('button:not(#submit)')[audioOnly ? 0 : 1].class = '';
+            [...document.querySelectorAll('button')].filter(
+              a => a.textContent.includes(audioOnly ? "MP3" : "MP4")).forEach(
+              a => {a.click();});
 
             convertButton.click();
 
-            const ytmp3Observer = new MutationObserver( function () {
-              const finishedConversion = document.querySelector('div[style="justify-content: center;"');
-              if (finishedConversion) {
-                finishedConversion.querySelector('button').click();
+            const ytmp3Observer = new MutationObserver(function () {
+
+              var finishedConverting = false;
+              [...document.querySelectorAll('div')].filter(
+                a => a.textContent.includes("completed")).forEach(
+                a => {
+                  console.log(a);
+                  finishedConverting = true;
+                });
+
+              if (finishedConverting)
+              {
+                console.log("clicking download button");
+                [...document.querySelectorAll('button')].filter(a => a.textContent.includes("Download"))[0].click();
+                ytmp3Observer.disconnect();
               }
+              else
+                console.log("Page updated but didnt see download button");
             });
 
             ytmp3Observer.observe(document.body, {
-            childList: true,
-            subtree: true,});
+              childList: true,
+              subtree: true,
+            });
           }
         }
         return true;
@@ -487,8 +493,9 @@ const downloadServices = {
             const observer = new MutationObserver(function () {
               if (loadingIcon.classList.contains('loading') || !loadingIcon) return;
               const dwnButton = document.querySelector('#download-button');
-              dwnButton.click();
               const queue = document.querySelector('#processing-popover');
+              if (!dwnButton || !queue) return;
+              dwnButton.click();
               queue.style.backgroundColor = 'rgba(255, 37, 37, 0.56)';
               const downloadObserver = new MutationObserver(function () {
                 const queueItems = queue.querySelectorAll('.processing-item');
@@ -830,11 +837,13 @@ function showOptions(div) {
     extraDownloadServices['downsub'].download();
     closeOptions(optionsDiv);
   });
-  window.addEventListener('click', (e) => {
+  const outsideClickHandler = (e) => {
     if (!div.contains(e.target)) {
       closeOptions(optionsDiv);
+      window.removeEventListener('click', outsideClickHandler);
     }
-  });
+  };
+  window.addEventListener('click', outsideClickHandler);
 }
 
 function createButton(bar, short) {
@@ -865,6 +874,7 @@ function createButton(bar, short) {
     download();
   });
   button.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
     const downloadService = gmc.get('downloadService') || defaults.downloadService;
     const backupService = gmc.get('backupService') || defaults.backupService;
     if (downloadService !== backupService && backupService !== 'none') download(false, backupService);
