@@ -421,12 +421,9 @@ const downloadServices = {
 
               if (finishedConverting)
               {
-                console.log("clicking download button");
                 [...document.querySelectorAll('button')].filter(a => a.textContent.includes("Download"))[0].click();
                 ytmp3Observer.disconnect();
               }
-              else
-                console.log("Page updated but didnt see download button");
             });
 
             ytmp3Observer.observe(document.body, {
