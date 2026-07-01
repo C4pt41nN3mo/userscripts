@@ -23,8 +23,6 @@
 // @grant               GM_xmlhttpRequest
 // @license             MIT
 // @run-at              document-end
-// @downloadURL https://update.greasyfork.org/scripts/481954/YouTube%20Direct%20Downloader.user.js
-// @updateURL https://update.greasyfork.org/scripts/481954/YouTube%20Direct%20Downloader.meta.js
 // ==/UserScript==
 
 const gmcCSS = `
@@ -388,7 +386,6 @@ const downloadServices = {
       if (checkUrl('ytmp3') || checkUrl('yt2mp3')) {
         const url = GM_getValue('ytmp3Url');
         const audioOnly = GM_getValue('ytmp3AudioOnly');
-        console.log("Audio only:" + audioOnly)
         if (url) {
           const input = document.querySelector('input[id="v"]') || document.querySelector('input[id="video"]');
           const convertButton = document.querySelector("button[type='submit']");
@@ -401,29 +398,21 @@ const downloadServices = {
             setInput(input, url);
 
             // Swaps radio button for audio format
-            //document.querySelectorAll('button:not(#submit)')[audioOnly ? 1 : 0].class = 'selected';
-            //document.querySelectorAll('button:not(#submit)')[audioOnly ? 0 : 1].class = '';
-            [...document.querySelectorAll('button')].filter(
-              a => a.textContent.includes(audioOnly ? "MP3" : "MP4")).forEach(
-              a => {a.click();});
+            const formatButton = [...document.querySelectorAll('button')].find((btn) => btn.textContent.includes(audioOnly ? 'MP3' : 'MP4'));
+
+            if (formatButton) {
+              formatButton.click();
+            }
 
             convertButton.click();
 
             const ytmp3Observer = new MutationObserver(function () {
-
-              var finishedConverting = false;
-              [...document.querySelectorAll('div')].filter(
-                a => a.textContent.includes("completed")).forEach(
-                a => {
-                  console.log(a);
-                  finishedConverting = true;
-                });
-
-              if (finishedConverting)
-              {
-                [...document.querySelectorAll('button')].filter(a => a.textContent.includes("Download"))[0].click();
-                ytmp3Observer.disconnect();
-              }
+              const finishedConverting = [...document.querySelectorAll('div')].some((el) => el.textContent.includes('completed'));
+              if (!finishedConverting) return;
+              const downloadButton = [...document.querySelectorAll('button')].find((btn) => btn.textContent.includes('Download'));
+              if (!downloadButton) return;
+              downloadButton.click();
+              ytmp3Observer.disconnect();
             });
 
             ytmp3Observer.observe(document.body, {
